@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CyberVision X</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { inter: ["Inter", "sans-serif"] },
+          colors: { bg: "#0B0F19", textdim: "#9AA4BF" },
+          boxShadow: {
+            glow: "0 0 0 1px rgba(59,130,246,.25), 0 10px 40px rgba(59,130,246,.18)",
+            glass: "0 8px 32px rgba(0,0,0,.28)"
+          },
+          transitionTimingFunction: { smooth: "ease-in-out" }
+        }
+      }
+    };
+  </script>
+  <style>
+    body { font-family: Inter, sans-serif; background: #0B0F19; }
+    .glass { background: rgba(21, 27, 45, 0.62); backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.08); }
+    .premium-card { transition: transform .3s ease-in-out, box-shadow .3s ease-in-out, border-color .3s ease-in-out; }
+    .premium-card:hover { transform: translateY(-4px) scale(1.01); border-color: rgba(96,165,250,.4); box-shadow: 0 10px 36px rgba(59,130,246,.18); }
+    .sidebar-collapsed .sidebar-label { opacity: 0; width: 0; transform: translateX(-8px); }
+    .sidebar-collapsed #sidebar { width: 5.25rem; }
+    .sidebar-collapsed #brandText { opacity: 0; width: 0; }
+    .page { display: none; opacity: 0; transform: translateY(8px); }
+    .page.active { display: block; animation: pageIn .32s ease-in-out forwards; }
+    .timeline-item::before {
+      content: ""; position: absolute; left: 10px; top: 28px; bottom: -16px; width: 1px; background: rgba(255,255,255,.14);
+    }
+    .timeline-item:last-child::before { display: none; }
+    .code-block {
+      background: linear-gradient(160deg, rgba(3,7,18,.86), rgba(15,23,42,.86));
+      border: 1px solid rgba(148,163,184,.25);
+      color: #dbeafe;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+    .code-block .kw { color: #93c5fd; }
+    .code-block .str { color: #86efac; }
+    .code-block .cm { color: #94a3b8; }
+    .skeleton {
+      background: linear-gradient(90deg, rgba(255,255,255,.05) 25%, rgba(255,255,255,.12) 50%, rgba(255,255,255,.05) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.3s infinite;
+    }
+    .reveal { opacity: 0; transform: translateY(10px); transition: opacity .4s ease-in-out, transform .4s ease-in-out; }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+    .ripple { position: absolute; border-radius: 9999px; transform: scale(0); animation: ripple .6s ease-out; background: rgba(255,255,255,.34); pointer-events: none; }
+    :focus-visible { outline: 2px solid rgba(96,165,250,.9); outline-offset: 2px; border-radius: 10px; }
+    @keyframes ripple { to { transform: scale(4); opacity: 0; } }
+    @keyframes pageIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+  </style>
+</head>
+<body class="text-slate-100 antialiased">
+  <div id="app" class="min-h-screen transition-all duration-300 ease-smooth">
+    <div class="absolute inset-0 pointer-events-none">
+      <div class="absolute -top-44 -left-32 h-96 w-96 rounded-full bg-blue-500/15 blur-3xl"></div>
+      <div class="absolute top-24 right-0 h-[28rem] w-[28rem] rounded-full bg-purple-500/15 blur-3xl"></div>
+    </div>
+    <div class="relative flex min-h-screen">
+      <aside id="sidebar" class="glass shadow-glass transition-all duration-300 ease-smooth w-72 px-4 py-5 border-r border-white/10">
+        <div class="mb-7 flex items-center justify-between">
+          <div class="flex items-center gap-3 overflow-hidden">
+            <div class="h-10 w-10 rounded-xl bg-gradient-to-br from-blue-500 to-purple-500 grid place-items-center font-extrabold">C</div>
+            <div id="brandText" class="transition-all duration-300 ease-smooth">
+              <p class="text-sm text-textdim">Cybersecurity SaaS</p>
+              <h1 class="font-semibold text-lg tracking-tight">CyberVision X</h1>
+            </div>
+          </div>
+          <button id="sidebarToggle" class="interactive-btn relative overflow-hidden h-9 w-9 rounded-lg border border-white/10 hover:border-blue-400/50 hover:bg-white/5 transition-all duration-300" aria-label="Toggle sidebar">☰</button>
+        </div>
+        <nav class="space-y-2" id="navMenu">
+          <button data-page="dashboard" class="nav-btn interactive-btn relative overflow-hidden w-full rounded-xl px-3 py-2.5 text-left flex items-center gap-3 bg-gradient-to-r from-blue-500/20 to-purple-500/20 border border-blue-400/30 shadow-glow"><span>📊</span><span class="sidebar-label transition-all duration-300">Dashboard</span></button>
+          <button data-page="scan" class="nav-btn interactive-btn relative overflow-hidden w-full rounded-xl px-3 py-2.5 text-left flex items-center gap-3 hover:bg-white/5 border border-transparent hover:border-white/10 transition-all duration-300"><span>🛡️</span><span class="sidebar-label transition-all duration-300">Scan</span></button>
+          <button data-page="results" class="nav-btn interactive-btn relative overflow-hidden w-full rounded-xl px-3 py-2.5 text-left flex items-center gap-3 hover:bg-white/5 border border-transparent hover:border-white/10 transition-all duration-300"><span>🧾</span><span class="sidebar-label transition-all duration-300">Results</span></button>
+          <button data-page="ai" class="nav-btn interactive-btn relative overflow-hidden w-full rounded-xl px-3 py-2.5 text-left flex items-center gap-3 hover:bg-white/5 border border-transparent hover:border-white/10 transition-all duration-300"><span>🤖</span><span class="sidebar-label transition-all duration-300">AI Recommendations</span></button>
+          <button data-page="attack" class="nav-btn interactive-btn relative overflow-hidden w-full rounded-xl px-3 py-2.5 text-left flex items-center gap-3 hover:bg-white/5 border border-transparent hover:border-white/10 transition-all duration-300"><span>⚔️</span><span class="sidebar-label transition-all duration-300">Attack Simulation</span></button>
+        </nav>
+      </aside>
+
+      <main class="flex-1 p-4 md:p-6 lg:p-8">
+        <header class="glass rounded-2xl px-4 py-3 md:px-5 md:py-4 shadow-glass mb-6 flex flex-wrap items-center gap-3 justify-between">
+          <div class="relative w-full md:w-[26rem]">
+            <input id="searchInput" type="text" placeholder="Search targets or issues..." class="w-full rounded-xl bg-white/5 border border-white/10 focus:border-blue-400/50 px-10 py-2.5 outline-none transition-all duration-300" />
+            <span class="absolute left-3 top-2.5 text-textdim">🔍</span>
+          </div>
+          <div class="text-sm text-textdim">API Base: <span id="apiBaseTag" class="text-blue-300"></span></div>
+        </header>
+
+        <section id="page-dashboard" class="page active space-y-5">
+          <div class="grid md:grid-cols-2 xl:grid-cols-5 gap-4">
+            <article class="glass premium-card reveal rounded-2xl p-5 border border-white/10 xl:col-span-2">
+              <p class="text-textdim text-sm">Overall Risk Score</p>
+              <div class="mt-2 flex items-end gap-3">
+                <h2 id="overallRiskScore" class="text-5xl font-extrabold">--</h2>
+                <p id="overallRiskLabel" class="pb-2 text-sm text-textdim">No scan selected</p>
+              </div>
+            </article>
+            <article class="glass premium-card reveal rounded-2xl p-4 border border-white/10"><p class="text-xs text-textdim">Critical</p><h3 id="sevCritical" class="text-3xl font-bold text-rose-300">0</h3></article>
+            <article class="glass premium-card reveal rounded-2xl p-4 border border-white/10"><p class="text-xs text-textdim">High</p><h3 id="sevHigh" class="text-3xl font-bold text-orange-300">0</h3></article>
+            <article class="glass premium-card reveal rounded-2xl p-4 border border-white/10"><p class="text-xs text-textdim">Medium</p><h3 id="sevMedium" class="text-3xl font-bold text-amber-300">0</h3></article>
+          </div>
+          <article class="glass premium-card reveal rounded-2xl p-5 border border-white/10">
+            <h3 class="text-lg font-semibold mb-3">Recent Scans</h3>
+            <div id="dashboardSkeleton" class="mb-3 hidden">
+              <div class="skeleton h-8 rounded-lg mb-2"></div>
+              <div class="skeleton h-8 rounded-lg mb-2"></div>
+              <div class="skeleton h-8 rounded-lg"></div>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full text-sm">
+                <thead><tr class="text-textdim border-b border-white/10"><th class="text-left py-3">Scan ID</th><th class="text-left py-3">Target</th><th class="text-left py-3">Risk</th><th class="text-left py-3">Actions</th></tr></thead>
+                <tbody id="recentScansBody" class="divide-y divide-white/5"></tbody>
+              </table>
+            </div>
+          </article>
+          <div class="grid xl:grid-cols-2 gap-4">
+            <article class="glass premium-card reveal rounded-2xl p-5 border border-white/10">
+              <h3 class="text-lg font-semibold mb-3">Vulnerability Distribution</h3>
+              <canvas id="vulnChart" height="180" aria-label="Vulnerability distribution chart"></canvas>
+            </article>
+            <article class="glass premium-card reveal rounded-2xl p-5 border border-white/10">
+              <h3 class="text-lg font-semibold mb-3">Risk Trend</h3>
+              <canvas id="riskTrendChart" height="180" aria-label="Risk trend chart"></canvas>
+            </article>
+          </div>
+        </section>
+
+        <section id="page-scan" class="page">
+          <div class="max-w-2xl mx-auto glass rounded-2xl p-8 border border-white/10">
+            <h2 class="text-2xl font-bold mb-2 text-center">Start Security Scan</h2>
+            <p class="text-textdim text-sm text-center mb-6">Dispatch a scan and monitor results in real time.</p>
+            <form id="scanForm" class="space-y-4">
+              <input id="scanUrlInput" type="url" required placeholder="https://example.com" class="w-full rounded-xl bg-white/5 border border-white/10 px-4 py-3 outline-none focus:border-blue-400/50 transition-all duration-300" />
+              <button id="startScanBtn" class="interactive-btn relative overflow-hidden w-full rounded-xl px-4 py-3 bg-gradient-to-r from-blue-500 to-purple-500 hover:opacity-90 transition-all duration-300">Start Scan</button>
+            </form>
+            <div id="scanProgress" class="hidden mt-5 flex items-center gap-3 text-sm text-blue-200">
+              <div class="h-5 w-5 rounded-full border-2 border-blue-400/40 border-t-blue-400 animate-spin"></div>
+              <span id="scanProgressText">Running scan...</span>
+            </div>
+          </div>
+        </section>
+
+        <section id="page-results" class="page space-y-5">
+          <article class="glass premium-card reveal rounded-2xl p-5 border border-white/10">
+            <div class="flex items-center justify-between mb-3">
+              <h3 class="text-lg font-semibold">Vulnerability Results</h3>
+              <p class="text-sm text-textdim">Scan ID: <span id="resultsScanId">--</span></p>
+            </div>
+            <div id="resultsSkeleton" class="mb-3 hidden">
+              <div class="skeleton h-10 rounded-lg mb-2"></div>
+              <div class="skeleton h-10 rounded-lg mb-2"></div>
+              <div class="skeleton h-10 rounded-lg"></div>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full text-sm">
+                <thead><tr class="text-textdim border-b border-white/10"><th class="text-left py-3">Name</th><th class="text-left py-3">Severity</th><th class="text-left py-3">Status</th><th class="text-left py-3">Details</th></tr></thead>
+                <tbody id="vulnTableBody" class="divide-y divide-white/5"></tbody>
+              </table>
+            </div>
+          </article>
+          <article class="glass premium-card reveal rounded-2xl p-5 border border-white/10">
+            <h3 class="text-lg font-semibold mb-3">Visual Analysis</h3>
+            <div id="visualWrap" class="relative overflow-hidden rounded-xl border border-white/10 bg-slate-900/60 min-h-[280px] grid place-items-center">
+              <p class="text-textdim text-sm">No visual analysis data yet.</p>
+            </div>
+          </article>
+        </section>
+
+        <section id="page-ai" class="page space-y-4">
+          <h3 class="text-xl font-semibold">AI Recommendations</h3>
+          <div id="aiCards" class="grid md:grid-cols-2 gap-4"></div>
+        </section>
+
+        <section id="page-attack" class="page space-y-4">
+          <div class="glass premium-card reveal rounded-2xl p-5 border border-white/10 flex items-center justify-between gap-3">
+            <div>
+              <h3 class="text-lg font-semibold">Attack Simulation</h3>
+              <p class="text-sm text-textdim">Run controlled validation against the selected scan.</p>
+            </div>
+            <button id="runAttackBtn" class="interactive-btn relative overflow-hidden rounded-xl px-4 py-2.5 border border-rose-400/40 text-rose-300 hover:bg-rose-500/10 transition-all duration-300">Run Attack Simulation</button>
+          </div>
+          <article class="glass rounded-2xl p-5 border border-white/10">
+            <h4 class="font-semibold mb-4">Attack Timeline</h4>
+            <div id="attackTimeline" class="space-y-4"></div>
+          </article>
+        </section>
+      </main>
+    </div>
+  </div>
+  <div id="toastStack" class="fixed right-4 top-4 z-[60] space-y-2 w-[22rem]"></div>
+  <script src="script.js"></script>
+</body>
+</html>
