@@ -13,16 +13,6 @@ The platform is designed to go beyond traditional scanners by not only identifyi
 
 ---
 
-## Demo
-
-<!-- Add your demo video link below -->
-
-<!-- Example: https://your-video-link.com -->
-
-[ Demo Video Link Coming Soon ]
-
----
-
 ## Key Features
 
 ### Security Scanner
